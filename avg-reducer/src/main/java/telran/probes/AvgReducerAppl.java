@@ -27,18 +27,18 @@ public class AvgReducerAppl {
 
 	}
 	@Bean
-	Consumer<ProbeData> pulseProbeConsumerAvg() {
-		return this::processPulseProbe;
+	Consumer<ProbeData> probeConsumerAvg() {
+		return this::processProbeData;
 	}
-	void processPulseProbe(ProbeData probe) {
+	void processProbeData(ProbeData probe) {
 		log.trace("{}", probe);
 		long sensorId = probe.sensorId();
 		Long avgValue = service.getAvgValue(probe);
 		if (avgValue != null) {
-			log.debug("for patient {} avg value is {}", sensorId, avgValue);
+			log.debug("for sensor {} avg value is {}", sensorId, avgValue);
 			streamBridge.send(bindingName, new ProbeData(sensorId, avgValue,System.currentTimeMillis()));
 		} else {
-			log.trace("for patient {} no avg value yet", sensorId);
+			log.trace("for sensor {} no avg value yet", sensorId);
 		}
 		
 		
