@@ -20,19 +20,19 @@ import java.util.*;
 
 @SpringBootTest
 public class AvgReducerServiceTest {
-	static List<Float> VALUES_NO_AVG;
-	static List<Float> VALUES_AVG;
-	static final long SENSOR_ID_NO_REDIS_RECORD = 123l;
-	static final long SENSOR_ID_NO_AVG = 124l;
-	static final long SENSOR_ID_AVG = 125l;
-	static final float VALUE = 100f;
-	static final ProbeData PROBE_NO_REDIS_RECORD = new ProbeData(SENSOR_ID_NO_REDIS_RECORD, VALUE, 0);
-	static final ProbeData PROBE_NO_AVG = new ProbeData(SENSOR_ID_NO_AVG, VALUE, 0);
-	static final ProbeData PROBE_AVG = new ProbeData(SENSOR_ID_AVG, VALUE, 0);
-	static final ProbesList PROBES_LIST_NO_AVG = new ProbesList(SENSOR_ID_NO_AVG);
-	static final ProbesList PROBES_LIST_AVG = new ProbesList(SENSOR_ID_AVG);
-	static final ProbesList PROBES_LIST_NO_RECORD = new ProbesList(SENSOR_ID_NO_REDIS_RECORD);
-	static final Map<Long, ProbesList> mapRedis = new HashMap<>();
+	 List<Float> VALUES_NO_AVG;
+	 List<Float> VALUES_AVG;
+	 final long SENSOR_ID_NO_REDIS_RECORD = 123l;
+	 final long SENSOR_ID_NO_AVG = 124l;
+	 final long SENSOR_ID_AVG = 125l;
+	 final float VALUE = 100f;
+	 final ProbeData PROBE_NO_REDIS_RECORD = new ProbeData(SENSOR_ID_NO_REDIS_RECORD, VALUE, 0);
+	 final ProbeData PROBE_NO_AVG = new ProbeData(SENSOR_ID_NO_AVG, VALUE, 0);
+ final ProbeData PROBE_AVG = new ProbeData(SENSOR_ID_AVG, VALUE, 0);
+	 final ProbesList PROBES_LIST_NO_AVG = new ProbesList(SENSOR_ID_NO_AVG);
+	 final ProbesList PROBES_LIST_AVG = new ProbesList(SENSOR_ID_AVG);
+	 final ProbesList PROBES_LIST_NO_RECORD = new ProbesList(SENSOR_ID_NO_REDIS_RECORD);
+	 final Map<Long, ProbesList> mapRedis = new HashMap<>();
 	@Autowired
 	AvgValueService avgValueService;	
 	@MockBean
@@ -40,8 +40,9 @@ public class AvgReducerServiceTest {
 	@BeforeEach
 	void setUp() {
 		VALUES_NO_AVG = PROBES_LIST_NO_AVG.getValues();
+		//VALUES_NO_AVG.clear();
 		VALUES_AVG = PROBES_LIST_AVG.getValues();
-		VALUES_AVG.clear();
+		//VALUES_AVG.clear();
 		VALUES_AVG.add(VALUE);
 		mapRedis.put(SENSOR_ID_NO_AVG, PROBES_LIST_NO_AVG);
 		mapRedis.put(SENSOR_ID_AVG, PROBES_LIST_AVG);
