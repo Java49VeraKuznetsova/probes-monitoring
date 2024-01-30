@@ -86,8 +86,11 @@
 	</build>
 
 	<modules>
-		<module>analyzer</module>
+		
 		<module>avg-reducer</module>
 		<module>avg-populator</module>
+		<module>analyzer</module>
+		<module>email-notifier</module>
+		<module>sensor-range-provider</module>
 	</modules>
 </project>

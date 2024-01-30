@@ -9,19 +9,18 @@ import lombok.Getter;
 
 @Configuration
 @Getter
-public class SensorRangeProviderConfiguration {
-	@Value("${app.sensor.range.provider.host:localhost}")
+public class EmailDataProviderConfiguration {
+	@Value("${app.sensor.email.provider.host:localhost}")
 	String host;
-	@Value("${app.sensor.range.provider.port:8282}")
+	@Value("${app.sensor.email.provider.port:8282}")
 	int port;
-	@Value("${app.sensor.range.provider.url:/sensor/range}")
+	@Value("${app.sensor.email.provider.url:/sensor/email}")
 	String url;
-	@Value("${app.sensor.range.provider.default.min:0}")
-	float minDefaultValue;
-	@Value("${app.sensor.range.provider.default.max:100}")
-	float maxDefaultValue;
+	@Value("${app.sensor.email.provider.default.email:name@gmail.com}")
+	String []defaultEmail;
 	@Bean
 	RestTemplate getRestTemplate() {
 		return new RestTemplate();
 	}
+
 }
