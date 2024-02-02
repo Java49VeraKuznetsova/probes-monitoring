@@ -28,7 +28,10 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-stream</artifactId>
 		</dependency>
-
+	<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream-binder-kafka</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -92,5 +95,7 @@
 		<module>analyzer</module>
 		<module>email-notifier</module>
 		<module>sensor-range-provider</module>
+		<module>sensors</module>
+		<module>admin-console</module>
 	</modules>
 </project>

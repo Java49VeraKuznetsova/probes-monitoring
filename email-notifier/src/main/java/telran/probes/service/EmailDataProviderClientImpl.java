@@ -1,11 +1,13 @@
 package telran.probes.service;
 
+import java.net.URI;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -13,75 +15,74 @@ import org.springframework.web.client.RestTemplate;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+import telran.probes.configuration.EmailsProviderConfiguration;
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EmailDataProviderClientImpl implements EmailDataProviderClient {
-@Getter
-HashMap<Long, String[]> mapEmails = new HashMap<>();
-@Value ("${app.update.token.email:email-update}")
-String emailUpdateToken;
-@Value("${app.update.message.delimiter:#}")
-String delimeter;
-final RestTemplate restTemplate;
-final EmailDataProviderConfiguration providerConfiguration;
-
+	@Getter
+	HashMap<Long, String[]> mapEmails = new HashMap<>();
+	@Value("${app.update.message.delimiter:#}")
+	String delimiter;
+	@Value("${app.update.token.emails:emails-update}")
+	String emailsUpdateToken;
+	final EmailsProviderConfiguration providerConfiguration;
+	final RestTemplate restTemplate;
 	@Override
 	public String[] getEmails(long sensorId) {
 		String[] emails = mapEmails.get(sensorId);
-		
-		return emails == null ? getEmailsFromService(sensorId) : emails;
+		return emails == null ? getEmailsFromRemoteService(sensorId) : emails;
 	}
-	Consumer<String> configConsumer() {
-		return this::checkConfigurationUpdate;
-	}
-void checkConfigurationUpdate(String message) {
-	
-	String [] tokens = message.split(delimeter);
-	if(tokens[0].equals(emailUpdateToken)) {
-		updateMapEmails(tokens[1]);
-	}
-}
-	private void updateMapEmails(String sensorIdStr) {
-	long id = Long.parseLong(sensorIdStr);
-	if (mapEmails.containsKey(id)) {
-		mapEmails.put(id, getEmailsFromService(id));
-	}
-	
-}
-	private String[] getEmailsFromService(long id) {
-		String[] res = null;
+	private String[] getEmailsFromRemoteService(long sensorId) {
+		String[] res =null;
 		try {
-		ResponseEntity<?> responseEntity =
-				restTemplate.exchange(getFullUrl(id), HttpMethod.GET, null, String[].class);
-		if(!responseEntity.getStatusCode().is2xxSuccessful()) {
-			throw new Exception((String) responseEntity.getBody());
+			ResponseEntity<?> responseEntity = 
+			restTemplate.exchange(getFullUrl(sensorId), HttpMethod.GET, null, String[].class);
+			if(!responseEntity.getStatusCode().is2xxSuccessful()) {
+				throw new Exception((String) responseEntity.getBody());
+			}
+			res = (String[])responseEntity.getBody();
+			mapEmails.put(sensorId, res);
+			log.debug("emails for sensor {} are {}", sensorId, Arrays.deepToString(res));
+		} catch (Exception e) {
+			log.error("no email address provided for sensor {}, reason: {}",
+					sensorId, e.getMessage());
+			res = getDefaultEmails();
+			log.warn("Taken default emails {}", Arrays.deepToString(res));
 		}
-		res = (String[])responseEntity.getBody();
-		mapEmails.put(id, res);
-	} catch (Exception e) {
-		log.error("no sensor email provided for sensor {}, reason {}", id, e.getMessage());
-		res = getDefaultEmail();
-		//!!!
-		log.warn("Taken default email {}");
 		
-	}
-		log.debug("Emails for sensor {} is {}", id, res);
 		return res;
 	}
-	private String[] getDefaultEmail() {
-		String[] defaultMails = providerConfiguration.getDefaultEmail();
-		return defaultMails;
+	private String[] getDefaultEmails() {
+		
+		return providerConfiguration.getEmails();
 	}
-	private String getFullUrl(long id) {
+	private String getFullUrl(long sensorId) {
 		String res = String.format("http://%s:%d%s/%d",
 				providerConfiguration.getHost(),
 				providerConfiguration.getPort(),
 				providerConfiguration.getUrl(),
-				id);
+				sensorId);
 		log.debug("url:{}", res);
 		return res;
 	}
+	@Bean
+	Consumer<String> configChangeConsumer() {
+		return this::checkConfigurationUpdate;
+	}
+void checkConfigurationUpdate(String message) {
+		
+		String [] tokens = message.split(delimiter);
+		if(tokens[0].equals(emailsUpdateToken)) {
+			updateMapEmails(tokens[1]);
+		}
+	}
+private void updateMapEmails(String sensorIdStr) {
+	long id = Long.parseLong(sensorIdStr);
+	if (mapEmails.containsKey(id)) {
+		getEmailsFromRemoteService(id);
+	}
+	
+}
 
 }
